@@ -5,8 +5,76 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Indigo3DisplayBuffer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="MainWindow" Height="450" Width="800" SizeChanged="mainWindow_SizeChanged">
+    <Grid x:Name="gridMain" Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="50*"/>
+        </Grid.ColumnDefinitions>
+        <Canvas x:Name="cvsDispBuff" Margin="0" Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Height="100" Background="Black" ClipToBounds="True">
+        </Canvas>
+        <StackPanel x:Name="stackConnect" Orientation="Horizontal" Margin="5,5,5,15" Grid.ColumnSpan="4">
+            <Label Content="Par File: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <TextBox x:Name="lblParIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <Button x:Name="btnOpenPar" Content="Open" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="60" Margin="10,0,0,3.6" Click="btnOpenPar_Click"/>
+
+            <Label Content="Bin File: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <TextBox x:Name="lblBinIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <Button x:Name="btnOpenBin" Content="Open" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="60" Margin="10,0,0,3.6" Click="btnOpenBin_Click"/>
+        </StackPanel>
+        <GridSplitter x:Name="splitter"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Stretch"
+              Background="#FFECECEC" 
+              ShowsPreview="True" Width="5" Margin="0" Grid.Column="1" Grid.Row="1"
+           />
+        <Grid x:Name="stackControl" Grid.Row="1" Grid.Column="2" Margin="10" SizeChanged="StackPanel_SizeChanged">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <ListView x:Name="listDisplayBuffer" HorizontalContentAlignment="Stretch" Margin="0" Grid.Row="0" FontSize="12">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Type}"/>
+                        <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}" Width="40"/>
+                        <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}" Width="40"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <ScrollViewer Grid.Row="1" FontSize="12" Margin="0,15,0,0">
+                <Grid Margin="0" Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Display Buffer Info" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontWeight="Bold" Padding="5,10,5,5"/>
+
+                    <Label Content="Source" HorizontalAlignment="Left" Margin="0" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblSource" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
+
+                    <Label Content="Width" HorizontalAlignment="Left" Margin="0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblDispWidth" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+
+                    <Label Content="Height" HorizontalAlignment="Left" Margin="0" Grid.Row="3" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblDispHeight" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="3" VerticalAlignment="Top" Grid.Column="1"/>
+                </Grid>
+            </ScrollViewer>
+
+        </Grid>
     </Grid>
 </Window>
