@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
 
 namespace Indigo3DisplayBuffer
 {
@@ -23,11 +24,14 @@ namespace Indigo3DisplayBuffer
         public MainWindow()
         {
             InitializeComponent();
+
+            lblDispWidth.Content = 1920;
+            lblDispHeight.Content = 720;
         }
 
         private void btnOpenPar_Click(object sender, RoutedEventArgs e)
         {
-
+            displayBuffer_SizeChange();
         }
 
         private void btnOpenBin_Click(object sender, RoutedEventArgs e)
@@ -81,5 +85,33 @@ namespace Indigo3DisplayBuffer
             catch { }
         }
 
+    }
+}
+
+public class UserDispInfo : INotifyPropertyChanged
+{
+    public UserDispInfo(double x, double y, string type = "Move")
+    {
+        Type = type;
+        X = Convert.ToInt32(Math.Round(x)).ToString();
+        Y = Convert.ToInt32(Math.Round(y)).ToString();
+    }
+    public string Type { get; }
+    public string X { get; }
+    public string Y { get; }
+    public string Width { get; }
+    public string Height { get; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
+    private void NotifyPropertyChanged(String propertyName = "")
+    {
+        if (PropertyChanged != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

@@ -16,15 +16,15 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="50*"/>
         </Grid.ColumnDefinitions>
-        <Canvas x:Name="cvsDispBuff" Margin="0" Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Height="100" Background="Black" ClipToBounds="True">
+        <Canvas x:Name="cvsDispBuff" Margin="0" Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Height="100" Background="Black" ClipToBounds="True">
         </Canvas>
         <StackPanel x:Name="stackConnect" Orientation="Horizontal" Margin="5,5,5,15" Grid.ColumnSpan="4">
             <Label Content="Par File: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
-            <TextBox x:Name="lblParIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <TextBox x:Name="lblParIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="150" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Button x:Name="btnOpenPar" Content="Open" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="60" Margin="10,0,0,3.6" Click="btnOpenPar_Click"/>
 
             <Label Content="Bin File: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
-            <TextBox x:Name="lblBinIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <TextBox x:Name="lblBinIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="150" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Button x:Name="btnOpenBin" Content="Open" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="60" Margin="10,0,0,3.6" Click="btnOpenBin_Click"/>
         </StackPanel>
         <GridSplitter x:Name="splitter"
@@ -35,19 +35,27 @@
            />
         <Grid x:Name="stackControl" Grid.Row="1" Grid.Column="2" Margin="10" SizeChanged="StackPanel_SizeChanged">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
-            <ListView x:Name="listDisplayBuffer" HorizontalContentAlignment="Stretch" Margin="0" Grid.Row="0" FontSize="12">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,5">
+                <Label Content="Binary Offset: " HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0x" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" BorderThickness="0" Padding="1,1,0,1"/>
+                <TextBox x:Name="txtBinOffset" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" Width="45" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" BorderThickness="0" Padding="0,1,1,1"/>
+            </StackPanel>
+            <ListView x:Name="listDisplayBuffer" HorizontalContentAlignment="Stretch" Margin="0" Grid.Row="1" FontSize="12">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Type}"/>
                         <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}" Width="40"/>
                         <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}" Width="40"/>
+                        <GridViewColumn Header="W" DisplayMemberBinding="{Binding Width}" Width="40"/>
+                        <GridViewColumn Header="H" DisplayMemberBinding="{Binding Height}" Width="40"/>
                     </GridView>
                 </ListView.View>
             </ListView>
-            <ScrollViewer Grid.Row="1" FontSize="12" Margin="0,15,0,0">
+            <ScrollViewer Grid.Row="2" FontSize="12" Margin="0,15,0,0">
                 <Grid Margin="0" Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
