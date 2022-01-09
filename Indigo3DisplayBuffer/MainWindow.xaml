@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Indigo3DisplayBuffer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" SizeChanged="mainWindow_SizeChanged">
+        Title="MainWindow" Height="600" Width="800">
     <Grid x:Name="gridMain" Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,8 +16,9 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="50*"/>
         </Grid.ColumnDefinitions>
-        <Canvas x:Name="cvsDispBuff" Margin="0" Grid.RowSpan="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Height="100" Background="Black" ClipToBounds="True">
-        </Canvas>
+        <ScrollViewer Grid.RowSpan="2" Grid.Row="1" FontSize="12" Margin="0,15,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <Canvas x:Name="cvsDispBuff" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Height="100" Background="Black" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+        </ScrollViewer>
         <StackPanel x:Name="stackConnect" Orientation="Horizontal" Margin="5,5,5,15" Grid.ColumnSpan="4">
             <Label Content="Par File: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
             <TextBox x:Name="lblParIndigo3" IsReadOnly="True" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Center" Width="150" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
@@ -33,7 +34,7 @@
               Background="#FFECECEC" 
               ShowsPreview="True" Width="5" Margin="0" Grid.Column="1" Grid.Row="1"
            />
-        <Grid x:Name="stackControl" Grid.Row="1" Grid.Column="2" Margin="10" SizeChanged="StackPanel_SizeChanged">
+        <Grid x:Name="stackControl" Grid.Row="1" Grid.Column="2" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3*"/>
@@ -42,19 +43,129 @@
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,5">
                 <Label Content="Binary Offset: " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0x" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" BorderThickness="0" Padding="1,1,0,1"/>
-                <TextBox x:Name="txtBinOffset" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" Width="45" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" BorderThickness="0" Padding="0,1,1,1"/>
+                <TextBox x:Name="txtBinOffset" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="1000" VerticalAlignment="Center" Width="45" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" BorderThickness="0" Padding="0,1,1,1"/>
             </StackPanel>
-            <ListView x:Name="listDisplayBuffer" HorizontalContentAlignment="Stretch" Margin="0" Grid.Row="1" FontSize="12">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Type}"/>
-                        <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}" Width="40"/>
-                        <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}" Width="40"/>
-                        <GridViewColumn Header="W" DisplayMemberBinding="{Binding Width}" Width="40"/>
-                        <GridViewColumn Header="H" DisplayMemberBinding="{Binding Height}" Width="40"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <TabControl x:Name="tabDispBuffer" Grid.Row="1">
+                <TabItem Header="Decode0" >
+                    <Grid  >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="listFetchDecode0" Grid.Row="0" HorizontalContentAlignment="Stretch" Margin="0" FontSize="12">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding strX}" Width="40"/>
+                                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding strY}" Width="40"/>
+                                    <GridViewColumn Header="W" DisplayMemberBinding="{Binding strWidth}" Width="40"/>
+                                    <GridViewColumn Header="H" DisplayMemberBinding="{Binding strHeight}" Width="40"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <Grid Margin="0" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Frame Size" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchDecode0Size" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Top" Grid.Column="1"/>
+
+                            <Label Content="Palette Width" HorizontalAlignment="Left" Margin="0" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchDecode0PaletteWidth" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
+
+                            <Label Content="Scale" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchDecode0Scale" Content="" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Layer0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <ListView x:Name="listFetchLayer0" Grid.Row="0" HorizontalContentAlignment="Stretch" Margin="0" FontSize="12" >
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding strX}" Width="40"/>
+                                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding strY}" Width="40"/>
+                                    <GridViewColumn Header="W" DisplayMemberBinding="{Binding strWidth}" Width="40"/>
+                                    <GridViewColumn Header="H" DisplayMemberBinding="{Binding strHeight}" Width="40"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <Grid Margin="0" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Frame Size" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer0Size" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Top" Grid.Column="1"/>
+
+                            <Label Content="Palette Width" HorizontalAlignment="Left" Margin="0" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer0PaletteWidth" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
+                            
+                            <Label Content="Scale" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer0Scale" Content="" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Layer1">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ListView x:Name="listFetchLayer1" Grid.Row="0" HorizontalContentAlignment="Stretch" Margin="0" FontSize="12" >
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding strX}" Width="40"/>
+                                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding strY}" Width="40"/>
+                                    <GridViewColumn Header="W" DisplayMemberBinding="{Binding strWidth}" Width="40"/>
+                                    <GridViewColumn Header="H" DisplayMemberBinding="{Binding strHeight}" Width="40"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <Grid Margin="0" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Frame Size" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer1Size" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Top" Grid.Column="1"/>
+
+                            <Label Content="Palette Width" HorizontalAlignment="Left" Margin="0" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer1PaletteWidth" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
+
+                            <Label Content="Scale" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                            <Label x:Name="lblFetchLayer1Scale" Content="" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
             <ScrollViewer Grid.Row="2" FontSize="12" Margin="0,15,0,0">
                 <Grid Margin="0" Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
@@ -72,14 +183,20 @@
                     </Grid.ColumnDefinitions>
                     <Label Content="Display Buffer Info" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontWeight="Bold" Padding="5,10,5,5"/>
 
-                    <Label Content="Source" HorizontalAlignment="Left" Margin="0" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
-                    <Label x:Name="lblSource" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Source" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblSource" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1"/>
 
-                    <Label Content="Width" HorizontalAlignment="Left" Margin="0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
-                    <Label x:Name="lblDispWidth" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Base Address" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblSourceBufferBaseAddress" Content="" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
 
-                    <Label Content="Height" HorizontalAlignment="Left" Margin="0" Grid.Row="3" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
-                    <Label x:Name="lblDispHeight" Content="" HorizontalAlignment="Center" Margin="0" Grid.Row="3" VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Image Size" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblDispSize" Content="" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Top" Grid.Column="1"/>
+
+                    <Label Content="Bits Per Pixel" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblDispBitsPerPixel" Content="" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Top" Grid.Column="1"/>
+
+                    <Label Content="Status" HorizontalAlignment="Left" Grid.Row="5" VerticalAlignment="Top" FontWeight="Bold" Padding="10,5,5,5"/>
+                    <Label x:Name="lblDrawStatus" Content="" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Top" Grid.Column="1"/>
                 </Grid>
             </ScrollViewer>
 

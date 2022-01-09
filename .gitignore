@@ -259,3 +259,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/fetchlayer0_base2_0x17cbee4_196.bin
+/fetchlayer0_base1_0x17c87d0_196.bin
+/fetchlayer0_base0_0x17c7260_196.bin
+/17C1000_Release_20210719_rev2_JEIDA.par
+/17C1000_Release_20210719_rev2_JEIDA.bin
