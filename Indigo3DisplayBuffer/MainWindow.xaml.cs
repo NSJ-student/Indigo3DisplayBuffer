@@ -29,12 +29,14 @@ namespace Indigo3DisplayBuffer
         private UserFrameProperty FetchDecode0;
         private UserFrameProperty FetchLayer0;
         private UserFrameProperty FetchLayer1;
+        private UserImageSourceBuffer currentItem;
         private byte[] SourceData;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            currentItem = null;
             FetchDecode0 = new UserFrameProperty(UserFrameProperty.SourceType.SRC_FETCH_DECODE0);
             FetchLayer0 = new UserFrameProperty(UserFrameProperty.SourceType.SRC_FETCHLAYER0);
             FetchLayer1 = new UserFrameProperty(UserFrameProperty.SourceType.SRC_FETCHLAYER1);
@@ -61,6 +63,15 @@ namespace Indigo3DisplayBuffer
             dialog.Filter = "Par File(*.par)|*.par";
             if (dialog.ShowDialog() == true)
             {
+                if(lblParIndigo3.Text != "")
+                {
+                    FetchDecode0.disableAll();
+                    FetchLayer0.disableAll();
+                    FetchLayer1.disableAll();
+                    lblBinIndigo3.Text = "";
+                    SourceData = null;
+                }
+
                 StreamReader parReader = File.OpenText(dialog.FileName);
                 lblParIndigo3.Text = dialog.SafeFileName;
 
@@ -142,6 +153,10 @@ namespace Indigo3DisplayBuffer
 
         private void btnOpenBin_Click(object sender, RoutedEventArgs e)
         {
+            if (lblParIndigo3.Text == "")
+            {
+                return;
+            }
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "Bin File(*.bin)|*.bin";
             if (dialog.ShowDialog() == true)
@@ -179,24 +194,94 @@ namespace Indigo3DisplayBuffer
 
         private void listFetchDecode0_CurrentChanged(object sender, EventArgs e)
         {
-            UserImageSourceBuffer item = listFetchDecode0.SelectedItem as UserImageSourceBuffer;
-            showImageSourceBufferInfo(item);
+            currentItem = listFetchDecode0.SelectedItem as UserImageSourceBuffer;
+            showImageSourceBufferInfo(currentItem);
         }
 
         private void listFetchLayer0_CurrentChanged(object sender, EventArgs e)
         {
 
-            UserImageSourceBuffer item = listFetchLayer0.SelectedItem as UserImageSourceBuffer;
-            showImageSourceBufferInfo(item);
+            currentItem = listFetchLayer0.SelectedItem as UserImageSourceBuffer;
+            showImageSourceBufferInfo(currentItem);
         }
 
         private void listFetchLayer1_CurrentChanged(object sender, EventArgs e)
         {
 
-            UserImageSourceBuffer item = listFetchLayer1.SelectedItem as UserImageSourceBuffer;
-            showImageSourceBufferInfo(item);
+            currentItem = listFetchLayer1.SelectedItem as UserImageSourceBuffer;
+            showImageSourceBufferInfo(currentItem);
         }
-        
+
+        private void btnSource_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentItem == null)
+            {
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = "no item";
+                return;
+            }
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Bin File(*.bin)|*.bin";
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    FileStream binReader = File.Open(dialog.FileName, FileMode.Open);
+                    btnSource.Content = dialog.SafeFileName;
+
+                    byte[] tempSourceData = new byte[binReader.Length];
+
+                    binReader.Read(tempSourceData, 0, (int)binReader.Length);
+                    binReader.Close();
+
+                    drawImage(currentItem, tempSourceData);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private void cvsDispBuff_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (!cvsDispBuff.IsVisible)
+            {
+                return;
+            }
+            if (e.Delta == 0)
+            {
+                return;
+            }
+            if(!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                return;
+            }
+
+            if (e.Delta > 0)
+            {
+                cvsDispBuff.Width = cvsDispBuff.Width * 1.05;
+                cvsDispBuff.Height = cvsDispBuff.Height * 1.05;
+            }
+            else
+            {
+                cvsDispBuff.Width = cvsDispBuff.Width * 0.95;
+                cvsDispBuff.Height = cvsDispBuff.Height * 0.95;
+            }
+        }
+
+        private void lblDispSize_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(currentItem == null)
+            {
+                return;
+            }
+
+            cvsDispBuff.Width = currentItem.Width;
+            cvsDispBuff.Height = currentItem.Height;
+        }
+
         /**************************/
         //     User Function
         /**************************/
@@ -208,20 +293,23 @@ namespace Indigo3DisplayBuffer
                 return;
             }
 
-            lblSource.Content = String.Format("{0} ({1})", item.Name, item.Enabled?"O":"X");
+            btnSource.Content = String.Format("{0} ({1})", item.Name, item.Enabled?"O":"X");
             lblSourceBufferBaseAddress.Content = String.Format("0x{0:X8}", item.SourceBufferAddress);
             lblDispSize.Content = String.Format("{0} x {1}", item.Width, item.Height);
             lblDispBitsPerPixel.Content = String.Format("{0}", item.BitsPerPixel);
+            lblStride.Content = String.Format("{0} (=>{1})", item.Stride, item.Stride*4);
 
             if (item.Enabled)
             {
                 cvsDispBuff.Width = item.Width;
                 cvsDispBuff.Height = item.Height;
                 cvsDispBuff.Visibility = Visibility.Visible;
+                btnSource.IsEnabled = true;
             }
             else
             {
                 cvsDispBuff.Visibility = Visibility.Hidden;
+                btnSource.IsEnabled = false;
             }
 
             drawImage(item);
@@ -231,19 +319,19 @@ namespace Indigo3DisplayBuffer
         {
             if(SourceData == null)
             {
-                lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                lblDrawStatus.Content = "null data";
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = "Null Data";
                 return;
             }
             if(!cvsDispBuff.IsVisible)
             {
-                lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                lblDrawStatus.Content = "No Info";
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = "No Info";
                 return;
             }
 
-            lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
-            lblDrawStatus.Content = "Loading";
+            txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
+            txtDrawStatus.Text = "Loading";
 
             int offset = Convert.ToInt32(txtBinOffset.Text, 16);
             int startPos = item.SourceBufferAddress - 0x017C0000 - offset;
@@ -283,7 +371,7 @@ namespace Indigo3DisplayBuffer
                 bool stop = false;
                 for (int h = 0; (h < item.Height) && !stop; h++)
                 {
-                    for (int w = 0; (w < item.Height) && !stop; w++)
+                    for (int w = 0; (w < item.Width) && !stop; w++)
                     {
                         int bit_pos = (item.Width * h * palette_bits) + w * palette_bits;
                         int byte_pos = startPos + (bit_pos / 8);
@@ -321,20 +409,126 @@ namespace Indigo3DisplayBuffer
 
                 if(stop)
                 {
-                    lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    lblDrawStatus.Content = "buffer out of range";
+                    txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                    txtDrawStatus.Text = "buffer out of range";
                     Console.WriteLine("** error(drawImage): out of range");
                 }
                 else
                 {
-                    lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
-                    lblDrawStatus.Content = "Complete";
+                    txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
+                    txtDrawStatus.Text = "Complete";
                 }
             }
             catch (Exception ex)
             {
-                lblDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                lblDrawStatus.Content = ex.Message;
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = ex.Message;
+                Console.WriteLine("** error(drawImage): " + ex.Message);
+            }
+        }
+
+        private void drawImage(UserImageSourceBuffer item, byte[] tempSourceData)
+        {
+            if (!cvsDispBuff.IsVisible)
+            {
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = "No Info";
+                return;
+            }
+
+            txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
+            txtDrawStatus.Text = "Loading";
+            
+            int startPos = 0;
+            UInt32[] palette;
+            int palette_bits;
+            int palette_offset;
+
+            if (item.SrcType == UserFrameProperty.SourceType.SRC_FETCH_DECODE0)
+            {
+                palette = FetchDecode0.ColorPalette;
+                palette_bits = FetchDecode0.BitsPerPixelForPalette;
+                palette_offset = 0;
+            }
+            else if (item.SrcType == UserFrameProperty.SourceType.SRC_FETCHLAYER0)
+            {
+                palette = FetchLayer0.ColorPalette;
+                palette_bits = FetchLayer0.BitsPerPixelForPalette;
+                palette_offset = (1 << palette_bits) * item.BaseIdx;
+            }
+            else if (item.SrcType == UserFrameProperty.SourceType.SRC_FETCHLAYER1)
+            {
+                palette = FetchLayer1.ColorPalette;
+                palette_bits = FetchLayer1.BitsPerPixelForPalette;
+                palette_offset = (1 << palette_bits) * item.BaseIdx;
+            }
+            else
+            {
+                return;
+            }
+
+            cvsDispBuff.Children.Clear();
+            int stride = item.Stride * 4;
+            Bitmap image = new Bitmap(stride, item.Height);
+            int pixel_mask = (1 << item.BitsPerPixel) - 1;
+
+            try
+            {
+                bool stop = false;
+                for (int h = 0; (h < item.Height) && !stop; h++)
+                {
+                    for (int w = 0; (w < stride) && !stop; w++)
+                    {
+                        int bit_pos = (stride * h * palette_bits) + w * palette_bits;
+                        int byte_pos = startPos + (bit_pos / 8);
+                        int bit_pos_ind = bit_pos % 8;
+
+                        if (byte_pos >= tempSourceData.Length)
+                        {
+                            stop = true;
+                            break;
+                        }
+
+                        byte pix_byte = tempSourceData[byte_pos];
+                        int index = (pix_byte >> bit_pos_ind) & pixel_mask;
+
+                        System.Drawing.Color color = item.getColorFromPalette(palette[palette_offset + index]);
+
+                        image.SetPixel(w, h, color);
+                    }
+                }
+
+                // Bitmap 담을 메모리스트림 준비
+                MemoryStream ms = new MemoryStream();   // 초기화
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                // BitmapImage 로 변환
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.StreamSource = ms;
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.EndInit();
+
+                ImageBrush ib = new ImageBrush();
+                ib.ImageSource = bi;
+                cvsDispBuff.Background = ib;
+
+                if (stop)
+                {
+                    txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                    txtDrawStatus.Text = "buffer out of range";
+                    Console.WriteLine("** error(drawImage): out of range");
+                }
+                else
+                {
+                    txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
+                    txtDrawStatus.Text = "Complete";
+                }
+            }
+            catch (Exception ex)
+            {
+                txtDrawStatus.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                txtDrawStatus.Text = ex.Message;
                 Console.WriteLine("** error(drawImage): " + ex.Message);
             }
         }
@@ -628,6 +822,14 @@ public class UserFrameProperty
         return true;
     }
 
+    public void disableAll()
+    {
+        foreach(UserImageSourceBuffer item in ImageList)
+        {
+            item.Enable = false;
+        }
+    }
+
     private bool isParAvailable(ParType _type)
     {
         if(srcType == SourceType.SRC_FETCHLAYER0)
@@ -669,22 +871,24 @@ public class UserFrameProperty
 public class UserImageSourceBuffer
 {
     public string Name { get; }
-    public string strX { get { return x.ToString(); } }
-    public string strY { get { return y.ToString(); } }
-    public string strWidth { get { return width.ToString(); } }
-    public string strHeight { get { return height.ToString(); } }
+    public string strX { get { if (!Enabled) { return ""; } return x.ToString(); } }
+    public string strY { get { if (!Enabled) { return ""; } return y.ToString(); } }
+    public string strWidth { get { if (!Enabled) { return ""; } return width.ToString(); } }
+    public string strHeight { get { if (!Enabled) { return ""; } return height.ToString(); } }
 
     public UserFrameProperty.SourceType SrcType { get { return srcType; } }
     public int BaseIdx { get; }
     public int Address { get; }
-    public int SourceBufferAddress { get { return baseSourceBufferAddress; } }
-    public int BitsPerPixel { get { return bitsPerPixel; } }
-    public int X { get { return x; } }
-    public int Y { get { return y; } }
-    public int Width { get { return width; } }
-    public int Height { get { return height; } }
+    public int SourceBufferAddress { get { if (!Enabled) { return 0; } return baseSourceBufferAddress; } }
+    public int BitsPerPixel { get { if (!Enabled) { return 0; } return bitsPerPixel; } }
+    public int Stride { get { if (!Enabled) { return 0; } return stride; } }
+    public int X { get { if (!Enabled) { return 0; } return x; } }
+    public int Y { get { if (!Enabled) { return 0; } return y; } }
+    public int Width { get { if (!Enabled) { return 0; } return width; } }
+    public int Height { get { if (!Enabled) { return 0; } return height; } }
     public bool Enabled { get { return sourceBufferEnable; } }
-    
+    public bool Enable { set { sourceBufferEnable = value; } }
+
     public UserImageSourceBuffer(int base_idx, int _address, UserFrameProperty.SourceType _type)
     {
         BaseIdx = base_idx;
@@ -775,9 +979,13 @@ public class UserImageSourceBuffer
     public System.Drawing.Color getColorFromPalette(UInt32 palette)
     {
         int R = (byte)((palette >> colorShift[0]) & colorMask[0]); // R
+        R = (R * 255) / (colorMask[0]);
         int G = (byte)((palette >> colorShift[1]) & colorMask[1]); // G
+        G = (G * 255) / (colorMask[1]);
         int B = (byte)((palette >> colorShift[2]) & colorMask[2]);  // B
+        B = (B * 255) / (colorMask[2]);
         int A = (byte)((palette >> colorShift[3]) & colorMask[3]);  // A
+        A = (A * 255) / (colorMask[3]);
 
         return System.Drawing.Color.FromArgb(A, R, G, B);
     }
@@ -793,6 +1001,7 @@ public class UserImageSourceBuffer
         int Value = Convert.ToInt32(value, 16);
 
         bitsPerPixel = (int)((Value >> 16) & 0x1F);
+        stride = (int)((Value >> 0) & 0xFF) + 1;
     }
     private void setSourceDimension(string value)
     {
@@ -845,6 +1054,7 @@ public class UserImageSourceBuffer
     private UserFrameProperty.SourceType srcType;
     private int baseSourceBufferAddress;
     private int bitsPerPixel;
+    private int stride;
     private int x;
     private int y;
     private int width;
